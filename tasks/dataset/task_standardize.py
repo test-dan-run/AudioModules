@@ -11,6 +11,7 @@ task.set_base_docker(
     docker_setup_bash_script= ['apt-get update', 'apt-get install -y sox libsox-fmt-all']
 )
 
+# librispeech_small dataset_task_id: 092896c34c0e45b598777222d9eaaee6
 args = {
     'dataset_task_id': '',
     'input_filetype': '',
