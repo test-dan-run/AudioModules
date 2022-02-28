@@ -5,14 +5,15 @@ TASK_NAME = "audio_standardizing"
 
 task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME)
 task.set_base_docker(
-    docker_image="derekchia/cuda:11.5.1-cudnn8-runtime-ubuntu20.04",
-    docker_setup_bash_script= ['apt-get update', 'apt-get install -y ffmpeg sox']
+    docker_image="python:3.8.12-slim-buster",
+    docker_setup_bash_script= ['apt-get update', 'apt-get install -y sox libsox-fmt-all']
 )
 
 args = {
     'dataset_task_id': '',
-    'sample_rate': '',
-    'channels': '',
+    'sample_rate': None,
+    'channels': None,
+    'normalize': None,
 }
 
 task.connect(args)
