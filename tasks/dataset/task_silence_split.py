@@ -1,29 +1,30 @@
 from clearml import Task, Dataset
 
 PROJECT_NAME = "audio_preproc_test"
-TASK_NAME = "audio_standardizing"
+TASK_NAME = "audio_silence_split"
 DATASET_NAME = "librispeech_small_standardized"
 OUTPUT_URL = "s3://experiment-logging/storage"
 
 task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME)
 task.set_base_docker(
     docker_image="python:3.8.12-slim-buster",
-    docker_setup_bash_script= ['apt-get update', 'apt-get install -y sox libsox-fmt-all']
+    docker_setup_bash_script= [
+        'apt-get update', 'apt-get install -y ffmpeg sox libsox-fmt-all', 
+        'python3 -m pip install librosa pydub']
 )
 
 # librispeech_small dataset_task_id: 092896c34c0e45b598777222d9eaaee6
 args = {
     'dataset_task_id': '',
-    'input_filetype': '',
-    'normalize': None,
-    'sample_rate': None,
-    'channels': None,
+    'manifest_path': 'manifest.json',
+    'thresh': 16,
+    'min_silence_len': 500,
 }
 
 task.connect(args)
 task.execute_remotely()
 
-from preprocessing.standardize import standardize
+from preprocessing.silence_split import batch_silence_split
 
 # import dataset
 
@@ -31,12 +32,11 @@ dataset = Dataset.get(dataset_id = args['dataset_task_id'])
 dataset_path = dataset.get_local_copy()
 
 # process
-new_dataset_path = standardize(
+new_dataset_path = batch_silence_split(
     input_dir = dataset_path,
-    input_filetype = args['input_filetype'],
-    normalize = args['normalize'],
-    sample_rate = args['sample_rate'],
-    channels = args['channels']
+    manifest_path = args['manifest_path'],
+    thresh = args['thresh'],
+    min_silence_len = args['min_silence_len']
 )
 
 # register ClearML Dataset
@@ -48,5 +48,3 @@ dataset.upload(output_url=OUTPUT_URL)
 dataset.finalize()
 
 print('Done')
-
-# yyy
