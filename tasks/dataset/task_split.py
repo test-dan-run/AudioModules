@@ -1,17 +1,22 @@
 
 from preprocessing.split import AudioSplitter
-from clearml import Task, Dataset
+from clearml import Task, Dataset, TaskTypes
 
 PROJECT_NAME = "audio_preproc_test"
 TASK_NAME = "audio_splitting"
 DATASET_POSTFIX = '_split'
 
 OUTPUT_URL = "s3://experiment-logging/storage"
+<<<<<<< HEAD
 # Task.add_requirements("requirements.txt")
 Task.force_requirements_env_freeze(
     force=True, requirements_file='requirements.txt')
 task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME)
 
+=======
+
+task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME, task_type=TaskTypes.data_processing)
+>>>>>>> 41dcb1f226e5deb98d1b58c27eff9caffc2901fb
 task.set_base_docker(
     docker_image="python:3.8",
     docker_setup_bash_script=['apt-get update',
