@@ -2,7 +2,7 @@ from clearml import Task, Dataset
 
 PROJECT_NAME = "audio_preproc_test"
 TASK_NAME = "audio_silence_split"
-DATASET_NAME = "librispeech_small_standardized"
+DATASET_POSTFIX = "_sil"
 OUTPUT_URL = "s3://experiment-logging/storage"
 
 task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME)
@@ -43,11 +43,11 @@ new_dataset_path = silence_splitter(
 )
 
 # register ClearML Dataset
-dataset = Dataset.create(
-    dataset_project=PROJECT_NAME, dataset_name=DATASET_NAME
+clearml_dataset = Dataset.create(
+    dataset_project=dataset.project, dataset_name=dataset.name + DATASET_POSTFIX
 )
-dataset.add_files(new_dataset_path) 
-dataset.upload(output_url=OUTPUT_URL)
-dataset.finalize()
+clearml_dataset.add_files(new_dataset_path)
+clearml_dataset.upload(output_url=OUTPUT_URL)
+clearml_dataset.finalize()
 
 print('Done')
