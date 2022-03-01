@@ -1,7 +1,7 @@
 from clearml.automation import PipelineController
 
 # temporary placement of configs
-RAW_DATASET_ID = "adbe7533b0714aecb2d8fbc9094dcb1e"
+RAW_DATASET_ID = "a9ece7d9cd574dec884b687baae89413"
 INPUT_FILETYPE = ".wav"
 NORMALIZE = True
 CHANNELS = 1
@@ -12,14 +12,6 @@ THRESH = 16
 
 MAX_DURATION = 30000
 MIN_DURATION = 5000
-
-def post_execute_callback(a_pipeline, a_node):
-    # type (PipelineController, PipelineController.Node) -> None
-    dataset_id = a_node.get_user_properties()['output_dataset_id']['value']
-    a_pipeline.set_user_properties({
-        "name": "output_dataset_id", 
-        "description": "the dataset task id of the output dataset", 
-        "value": dataset_id})
 
 pipe = PipelineController(
     name="audio_preprocessing_pipeline",
