@@ -32,8 +32,16 @@ class Standardizer():
 
     def batch_standardize_audio(self, input_dir: str, output_dir: str) -> str:
         os.makedirs(output_dir, exist_ok=True)
+        total_num_files = 0
+
         for root, _, files in os.walk(input_dir):
-            for fx in files:
+            num_files = len(files)
+            total_num_files += num_files
+
+            for idx, fx in enumerate(files):
+                if idx % 100 == 0:
+                    print(f'no. of files processed: {idx+1}/{num_files}')
+
                 # generate full output dir for the file
                 output_fulldir = output_dir + root.replace(input_dir, '')
                 os.makedirs(output_fulldir, exist_ok=True)
@@ -49,6 +57,7 @@ class Standardizer():
                     output_path = output_fulldir + '/' + fx.replace(self.input_filetype, '.wav')
                     self.standardize_audio(input_path, output_path)
 
+        print('total no. of files processed:', total_num_files)             
         return output_dir
 
     def __call__(self, input_dir: str, output_dir: str = 'temp'):

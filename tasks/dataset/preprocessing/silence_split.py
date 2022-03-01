@@ -43,7 +43,10 @@ class SilenceSplitter():
         with open(os.path.join(input_dir, manifest_path), mode='r', encoding='utf-8') as fr, \
             open(os.path.join(output_dir, manifest_path), mode='w', encoding='utf-8') as fw:
 
-            for line in fr.readlines():
+            num_files = len(fr.readlines())
+            for idx, line in enumerate(fr.readlines()):
+                if idx % 100 == 0:
+                    print(f'no. of files processed: {idx}/{num_files}')
                 d = json.loads(line)
                 orig_path = d['audio_filepath']
                 os.makedirs(os.path.join(output_dir, os.path.dirname(d['audio_filepath'])), exist_ok=True)
@@ -63,7 +66,7 @@ class SilenceSplitter():
                         librosa.get_duration(filename=os.path.join(output_dir, chunk_path)), 3)
                     fw.write(json.dumps(d) + '\n')
 
-        print('Done')
+        print('total no. of files processed:', num_files)
         return output_dir
 
     def __call__(self, input_dir: str, output_dir: str = 'temp', manifest_path: str = 'manifest.json'):
