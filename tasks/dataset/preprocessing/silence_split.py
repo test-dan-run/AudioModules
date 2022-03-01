@@ -42,18 +42,19 @@ class SilenceSplitter():
         print('Batch processing of silence splits...')
         with open(os.path.join(input_dir, manifest_path), mode='r', encoding='utf-8') as fr, \
             open(os.path.join(output_dir, manifest_path), mode='w', encoding='utf-8') as fw:
+            total_num_chunks = 0
 
-            num_files = len(fr.readlines())
             for idx, line in enumerate(fr.readlines()):
-                if idx % 100 == 0:
-                    print(f'no. of files processed: {idx}/{num_files}')
+                if idx % 100 == 0 and idx != 0:
+                    print(f'no. of files processed: {idx}')
                 d = json.loads(line)
                 orig_path = d['audio_filepath']
                 os.makedirs(os.path.join(output_dir, os.path.dirname(d['audio_filepath'])), exist_ok=True)
 
                 audio_chunks = self.silence_split(os.path.join(input_dir, orig_path))
-                for idx, chunk in enumerate(audio_chunks):
-                    chunk_path = orig_path.replace('.wav', f'_{str(idx)}.wav')
+                total_num_chunks += len(audio_chunks)
+                for chunk_idx, chunk in enumerate(audio_chunks):
+                    chunk_path = orig_path.replace('.wav', f'_{str(chunk_idx)}.wav')
 
                     # export the chunk as a wav file
                     chunk.export(
@@ -66,7 +67,8 @@ class SilenceSplitter():
                         librosa.get_duration(filename=os.path.join(output_dir, chunk_path)), 3)
                     fw.write(json.dumps(d) + '\n')
 
-        print('total no. of files processed:', num_files)
+        print('total no. of files processed:', idx+1)
+        print('total no. of files produced:', total_num_chunks)
         return output_dir
 
     def __call__(self, input_dir: str, output_dir: str = 'temp', manifest_path: str = 'manifest.json'):

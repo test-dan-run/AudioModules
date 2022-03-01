@@ -39,7 +39,7 @@ class Standardizer():
             total_num_files += num_files
 
             for idx, fx in enumerate(files):
-                if idx % 100 == 0:
+                if idx % 100 == 0 and idx != 0:
                     print(f'no. of files processed: {idx+1}/{num_files}')
 
                 # generate full output dir for the file
