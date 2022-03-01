@@ -7,10 +7,13 @@ TASK_NAME = "audio_splitting"
 DATASET_POSTFIX = '_split'
 
 OUTPUT_URL = "s3://experiment-logging/storage"
+# Task.add_requirements("requirements.txt")
+Task.force_requirements_env_freeze(
+    force=True, requirements_file='requirements.txt')
+task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME)
 
-task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME, task_type=TaskTypes.data_processing)
 task.set_base_docker(
-    docker_image="python:3.8.12-slim-buster",
+    docker_image="python:3.8",
     docker_setup_bash_script=['apt-get update',
                               'apt-get install -y sox libsox-fmt-all', 'apt install -y ffmpeg']
 )
