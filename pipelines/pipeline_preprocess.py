@@ -1,3 +1,71 @@
-from clearml import Task
 from clearml.automation import PipelineController
 
+# temporary placement of configs
+RAW_DATASET_ID = "adbe7533b0714aecb2d8fbc9094dcb1e"
+INPUT_FILETYPE = ".wav"
+NORMALIZE = True
+CHANNELS = 1
+SAMPLE_RATE = 16000
+
+MIN_SILENCE_LEN = 500
+THRESH = 16
+
+MAX_DURATION = 30000
+MIN_DURATION = 5000
+
+def post_execute_callback(a_pipeline, a_node):
+    # type (PipelineController, PipelineController.Node) -> None
+    dataset_id = a_node.get_user_properties()['output_dataset_id']['value']
+    a_pipeline.set_user_properties({
+        "name": "output_dataset_id", 
+        "description": "the dataset task id of the output dataset", 
+        "value": dataset_id})
+
+pipe = PipelineController(
+    name="audio_preprocessing_pipeline",
+    project="audio_preproc_test",
+    version="0.0.1",
+    add_pipeline_tags=True,
+)
+
+pipe.set_default_execution_queue("cpu-only")
+
+pipe.add_step(
+    name="stage_standardizing",
+    base_task_project="audio_preproc_test",
+    base_task_name="audio_standardizing",
+    parameter_override={
+        "General/dataset_task_id": RAW_DATASET_ID,
+        "General/input_filetype": INPUT_FILETYPE,
+        "General/normalize": NORMALIZE,
+        "General/channels": CHANNELS,
+        "General/sample_rate": SAMPLE_RATE,
+    }
+)
+
+pipe.add_step(
+    name="stage_silence_splitting",
+    parents=["stage_standardizing"],
+    base_task_project="audio_preproc_test",
+    base_task_name="audio_silence_split",
+    parameter_override={
+        "General/dataset_task_id": "${stage_standardizing.parameters.General/output_dataset_id}",
+        "General/min_silence_len": MIN_SILENCE_LEN,
+        "General/thresh": THRESH,
+    }
+)
+
+pipe.add_step(
+    name="stage_audio_splitting",
+    parents=["stage_silence_splitting"],
+    base_task_project="audio_preproc_test",
+    base_task_name="audio_splitting",
+    parameter_override={
+        "General/dataset_task_id": "${stage_silence_splitting.parameters.General/output_dataset_id}",
+        "General/max_duration": MAX_DURATION,
+        "General/min_duration": MIN_DURATION,
+    }
+)
+
+pipe.start()
+print('Done')
