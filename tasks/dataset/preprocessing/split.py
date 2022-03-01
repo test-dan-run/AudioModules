@@ -72,6 +72,7 @@ class AudioSplitter():
             for item in new_manifest:
                 json.dump(item, f)
 
+    
 
 if __name__ == '__main__':
 
