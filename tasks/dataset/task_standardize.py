@@ -23,7 +23,7 @@ args = {
 task.connect(args)
 task.execute_remotely()
 
-from preprocessing.standardize import standardize
+from preprocessing.standardize import Standardizer
 
 # import dataset
 
@@ -31,13 +31,13 @@ dataset = Dataset.get(dataset_id = args['dataset_task_id'])
 dataset_path = dataset.get_local_copy()
 
 # process
-new_dataset_path = standardize(
-    input_dir = dataset_path,
+standardizer = Standardizer(
     input_filetype = args['input_filetype'],
     normalize = args['normalize'],
     sample_rate = args['sample_rate'],
-    channels = args['channels']
+    channels = args['channels']    
 )
+new_dataset_path = standardizer(dataset_path)
 
 # register ClearML Dataset
 dataset = Dataset.create(
@@ -48,5 +48,3 @@ dataset.upload(output_url=OUTPUT_URL)
 dataset.finalize()
 
 print('Done')
-
-# yyy

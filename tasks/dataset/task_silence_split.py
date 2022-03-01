@@ -10,7 +10,7 @@ task.set_base_docker(
     docker_image="python:3.8.12-slim-buster",
     docker_setup_bash_script= [
         'apt-get update', 'apt-get install -y ffmpeg sox libsox-fmt-all', 
-        'python3 -m pip install librosa pydub']
+        'python3 -m pip install librosa pydub numpy==1.21.0']
 )
 
 # librispeech_small dataset_task_id: 092896c34c0e45b598777222d9eaaee6
@@ -24,7 +24,7 @@ args = {
 task.connect(args)
 task.execute_remotely()
 
-from preprocessing.silence_split import batch_silence_split
+from preprocessing.silence_split import SilenceSplitter
 
 # import dataset
 
@@ -32,18 +32,21 @@ dataset = Dataset.get(dataset_id = args['dataset_task_id'])
 dataset_path = dataset.get_local_copy()
 
 # process
-new_dataset_path = batch_silence_split(
-    input_dir = dataset_path,
-    manifest_path = args['manifest_path'],
+silence_splitter = SilenceSplitter(
     thresh = args['thresh'],
     min_silence_len = args['min_silence_len']
+)
+
+new_dataset_path = silence_splitter(
+    input_dir = dataset_path,
+    manifest_path = args['manifest_path'],
 )
 
 # register ClearML Dataset
 dataset = Dataset.create(
     dataset_project=PROJECT_NAME, dataset_name=DATASET_NAME
 )
-dataset.add_files(new_dataset_path)
+dataset.add_files(new_dataset_path) 
 dataset.upload(output_url=OUTPUT_URL)
 dataset.finalize()
 
