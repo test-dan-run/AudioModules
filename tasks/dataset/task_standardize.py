@@ -47,4 +47,8 @@ clearml_dataset.add_files(new_dataset_path)
 clearml_dataset.upload(output_url=OUTPUT_URL)
 clearml_dataset.finalize()
 
+task.set_user_properites({
+    "name": "output_dataset_id", 
+    "description": "the dataset task id of the output dataset", 
+    "value": clearml_dataset.id})
 print('Done')

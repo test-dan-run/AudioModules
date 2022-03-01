@@ -14,6 +14,7 @@ task.set_base_docker(
 )
 
 # librispeech_small dataset_task_id: 092896c34c0e45b598777222d9eaaee6
+# standardized small set: 6ea5091130af40ce86468542162f3e60
 args = {
     'dataset_task_id': '',
     'manifest_path': 'manifest.json',
@@ -50,4 +51,8 @@ clearml_dataset.add_files(new_dataset_path)
 clearml_dataset.upload(output_url=OUTPUT_URL)
 clearml_dataset.finalize()
 
+task.set_user_properites({
+    "name": "output_dataset_id", 
+    "description": "the dataset task id of the output dataset", 
+    "value": clearml_dataset.id})
 print('Done')

@@ -4,7 +4,7 @@ ENV TZ=Asia/Singapore
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install libsndfile1 (linux soundfile package)
-RUN apt-get update && apt-get install -y git wget libsndfile1 ffmpeg sox libsox-fmt-all \
+RUN apt-get update && apt-get install -y gcc git wget libsndfile1 ffmpeg sox libsox-fmt-all \
 && rm -rf /var/lib/apt/lists/*
 
 # Keeps Python from generating .pyc files in the container
