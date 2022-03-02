@@ -1,7 +1,7 @@
 from clearml.automation import PipelineController
 
 # temporary placement of configs
-RAW_DATASET_ID = "9d0d3924cb5541f789fb3f0d5fb9bc93"
+RAW_DATASET_ID = "10b07eed06e642d3ab3589d399aa9833"
 INPUT_FILETYPE = ".flac"
 NORMALIZE = True
 CHANNELS = 1
@@ -20,7 +20,7 @@ pipe = PipelineController(
     add_pipeline_tags=True,
 )
 
-pipe.set_default_execution_queue("cpu-only")
+pipe.set_default_execution_queue("compute")
 
 pipe.add_step(
     name="stage_standardizing",

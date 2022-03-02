@@ -1,0 +1,23 @@
+default_queue: 'compute'
+
+controller:
+  name: 'audio_preprocessing_pipeline'
+  project: 'audio_preproc_test'
+  version: '0.0.1'
+  add_pipeline_tags: true
+
+stages:
+  stage_standardizing:
+    raw_dataset_id: '10b07eed06e642d3ab3589d399aa9833'
+    input_filetype: '.flac'
+    normalize: true
+    channels: 1
+    sample_rate: 16000
+
+  stage_silence_splitting:
+    min_silence_len: 500
+    thresh: 16
+
+  stage_audio_splitting:
+    max_duration: 30000
+    min_duration: 500

@@ -51,7 +51,7 @@ class Standardizer():
                 d['audio_filepath'] = relative_output_path
                 fw.write(json.dumps(d) + '\n')
 
-        print('total no. of files processed:', idx+1)             
+        print('total no. of files processed:', idx+1)
         return output_dir
 
     def __call__(self, input_dir: str, output_dir: str = 'temp', manifest_path: str = 'manifest.json'):

@@ -61,7 +61,7 @@ class AudioSplitter():
 
                     chunk_name = f'{og_name}-{str(i+1)}.wav'
                     print("exporting ", chunk_name)
-                    # Save chunk to specific folder
+                    # Save chunk to specific fsolder
                     chunk.export(os.path.join(new_folder_location,
                                  chunk_name), format="wav")
 
@@ -70,9 +70,7 @@ class AudioSplitter():
                     new_manifest.append(item)
         with open(os.path.join(str(processed_path), 'manifest.json'), 'a') as f:
             for item in new_manifest:
-                json.dump(item, f)
-
-    
+                f.write(json.dumps(item) + '\n')    
 
 if __name__ == '__main__':
 
