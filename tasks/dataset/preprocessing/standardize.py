@@ -1,13 +1,14 @@
 # Standardizing audio files -> normalize, resampling, changing channels
 
 import os
+import json
 import shutil
 import subprocess
 
 class Standardizer():
 
     def __init__(
-        self, input_filetype: str, 
+        self, input_filetype: str,
         normalize: bool = True, sample_rate: int = 16000, channels: int = 1,
         ):
         '''
@@ -30,38 +31,31 @@ class Standardizer():
         
         subprocess.run(sox_command)
 
-    def batch_standardize_audio(self, input_dir: str, output_dir: str) -> str:
+    def batch_standardize_audio(self, input_dir: str, output_dir: str, manifest_path: str) -> str:
         os.makedirs(output_dir, exist_ok=True)
-        total_num_files = 0
+        with open(os.path.join(input_dir, manifest_path), mode='r', encoding='utf-8') as fr, \
+            open(os.path.join(output_dir, manifest_path), mode='w', encoding='utf-8') as fw:
 
-        for root, _, files in os.walk(input_dir):
-            num_files = len(files)
-            total_num_files += num_files
-
-            for idx, fx in enumerate(files):
+            for idx, line in enumerate(fr.readlines()):
                 if idx % 100 == 0 and idx != 0:
-                    print(f'no. of files processed: {idx+1}/{num_files}')
+                    print(f'no. of files processed: {idx}')
+                d = json.loads(line)
+                relative_input_path = d['audio_filepath']
+                os.makedirs(os.path.join(output_dir, os.path.dirname(d['audio_filepath'])), exist_ok=True)
 
-                # generate full output dir for the file
-                output_fulldir = output_dir + root.replace(input_dir, '')
-                os.makedirs(output_fulldir, exist_ok=True)
+                full_input_path = os.path.join(input_dir, relative_input_path)
+                relative_output_path = relative_input_path.replace(self.input_filetype, '.wav')
+                full_output_path = os.path.join(output_dir, relative_output_path)
 
-                input_path = root + '/' + fx
+                self.standardize_audio(full_input_path, full_output_path)
+                d['audio_filepath'] = relative_output_path
+                fw.write(json.dumps(d) + '\n')
 
-                # copy over non-audio files
-                if not fx.endswith(self.input_filetype):            
-                    output_path = output_fulldir + '/' + fx
-                    shutil.copyfile(input_path, output_path)
-
-                else:
-                    output_path = output_fulldir + '/' + fx.replace(self.input_filetype, '.wav')
-                    self.standardize_audio(input_path, output_path)
-
-        print('total no. of files processed:', total_num_files)             
+        print('total no. of files processed:', idx+1)             
         return output_dir
 
-    def __call__(self, input_dir: str, output_dir: str = 'temp'):
-        return self.batch_standardize_audio(input_dir, output_dir)
+    def __call__(self, input_dir: str, output_dir: str = 'temp', manifest_path: str = 'manifest.json'):
+        return self.batch_standardize_audio(input_dir, output_dir, manifest_path)
 
 if __name__ == '__main__':
 

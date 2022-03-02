@@ -1,8 +1,8 @@
 from clearml.automation import PipelineController
 
 # temporary placement of configs
-RAW_DATASET_ID = "a9ece7d9cd574dec884b687baae89413"
-INPUT_FILETYPE = ".wav"
+RAW_DATASET_ID = "9d0d3924cb5541f789fb3f0d5fb9bc93"
+INPUT_FILETYPE = ".flac"
 NORMALIZE = True
 CHANNELS = 1
 SAMPLE_RATE = 16000

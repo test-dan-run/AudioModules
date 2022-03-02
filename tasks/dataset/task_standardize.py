@@ -11,6 +11,7 @@ task.set_base_docker(docker_image="dleongsh/audio_preproc:v1.0.0")
 # librispeech_small dataset_task_id: 092896c34c0e45b598777222d9eaaee6
 args = {
     'dataset_task_id': '',
+    'manifest_path': 'manifest.json',
     'input_filetype': '',
     'normalize': None,
     'sample_rate': None,
@@ -34,7 +35,7 @@ standardizer = Standardizer(
     sample_rate = args['sample_rate'],
     channels = args['channels']    
 )
-new_dataset_path = standardizer(dataset_path)
+new_dataset_path = standardizer(dataset_path, manifest_path=args['manifest_path'])
 
 # register ClearML Dataset
 clearml_dataset = Dataset.create(
