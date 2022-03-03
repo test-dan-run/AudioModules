@@ -24,7 +24,7 @@ pipe.set_default_execution_queue("compute")
 
 pipe.add_step(
     name="stage_standardizing",
-    base_task_project="default_tasks/audio_preproc_test",
+    base_task_project="audio_preproc_test",
     base_task_name="audio_standardizing",
     parameter_override={
         "General/dataset_task_id": RAW_DATASET_ID,
@@ -38,7 +38,7 @@ pipe.add_step(
 pipe.add_step(
     name="stage_silence_splitting",
     parents=["stage_standardizing"],
-    base_task_project="default_tasks/audio_preproc_test",
+    base_task_project="audio_preproc_test",
     base_task_name="audio_silence_split",
     parameter_override={
         "General/dataset_task_id": "${stage_standardizing.parameters.General/output_dataset_id}",
@@ -50,7 +50,7 @@ pipe.add_step(
 pipe.add_step(
     name="stage_audio_splitting",
     parents=["stage_silence_splitting"],
-    base_task_project="default_tasks/audio_preproc_test",
+    base_task_project="audio_preproc_test",
     base_task_name="audio_splitting",
     parameter_override={
         "General/dataset_task_id": "${stage_silence_splitting.parameters.General/output_dataset_id}",
