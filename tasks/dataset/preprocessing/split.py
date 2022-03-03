@@ -68,7 +68,7 @@ class AudioSplitter():
                     item['audio_filepath'] = os.path.join(
                         str(old_file_path.parent), chunk_name)
                     new_manifest.append(item)
-        with open(os.path.join(str(processed_path), 'manifest.json'), 'a') as f:
+        with open(os.path.join(str(processed_path), 'manifest.json'), 'w') as f:
             for item in new_manifest:
                 f.write(json.dumps(item) + '\n')    
 

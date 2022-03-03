@@ -6,7 +6,7 @@ TASK_NAME = "audio_splitting"
 DATASET_POSTFIX = '_split'
 OUTPUT_URL = "s3://experiment-logging/storage"
 
-task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME)
+task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME, task_type=TaskTypes.data_processing)
 task.set_base_docker(docker_image="dleongsh/audio_preproc:v1.0.0")
 
 args = {
