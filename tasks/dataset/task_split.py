@@ -24,9 +24,9 @@ dataset = Dataset.get(dataset_id=args['dataset_task_id'])
 dataset_path = dataset.get_local_copy()
 print('dataset path', dataset_path)
 
-temp_path = '/tmp'
+temp_path = '/output_data'
 audio_splitter = AudioSplitter(args['min_duration'], args['max_duration'])
-audio_splitter(dataset_path, '/tmp')
+audio_splitter(dataset_path, temp_path)
 
 
 clearml_dataset = Dataset.create(
