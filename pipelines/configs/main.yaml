@@ -1,4 +1,7 @@
-default_queue: 'compute2'
+# Base Config
+
+default_pipeline_queue: 'service'
+default_task_queue: 'compute2'
 
 controller:
   name: 'hydra_audio_preprocessing_pipeline'
