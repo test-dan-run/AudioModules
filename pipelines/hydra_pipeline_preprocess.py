@@ -19,13 +19,15 @@ def main(hydra_cfg):
         task_type=TaskTypes.controller
     )
     if not running_remotely():
+        print('I\'m not running remotely bruh')
         # only connect config on remote launch
         task.connect(OmegaConf.to_container(hydra_cfg, resolve=True))
         task.set_base_docker('dleongsh/audio_preproc:v1.0.0')
         task.execute_remotely()
 
-    cfg = {k.replace('General/', ''):v for k, v in task.get_parameters(cast=True).items()}
-    if cfg['test']: 
+    cfg = task.get_parameters(cast=True)
+    print(cfg)
+    if cfg['General/test']: 
         print('Stupiak! It doesn\'t work!')
         return
 
