@@ -1,7 +1,7 @@
 # Base Config
 
-default_pipeline_queue: 'service'
-default_task_queue: 'compute2'
+default_pipeline_queue: 'cpu-only'
+default_task_queue: 'cpu-only'
 
 controller:
   name: 'hydra_audio_preprocessing_pipeline'
@@ -11,7 +11,7 @@ controller:
 stages:
   stage_standardizing:
     dataset_task_id: null
-    input_filetype: null
+    input_filetype: '.flac'
     normalize: true
     channels: 1
     sample_rate: 16000

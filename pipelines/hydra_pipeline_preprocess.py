@@ -53,7 +53,7 @@ def main(hydra_cfg):
     )
     task.connect(OmegaConf.to_container(hydra_cfg, resolve=True))
     task.set_base_docker('dleongsh/audio_preproc:v1.0.0')
-    task.execute_remotely(queue_name=hydra_cfg['default_pipeline_queue'])
+    task.execute_remotely()
     # END of using hydra configs
 
     # PULL ClearML Params
@@ -122,7 +122,7 @@ def main(hydra_cfg):
         parameter_override=step3_args
     )
 
-    pipe.start()
+    pipe.start(queue='General/default_pipeline_queue')
     print('Done')
 
 if __name__ == '__main__':

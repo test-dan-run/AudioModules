@@ -1,3 +1,4 @@
 test_output
 outputs
 .hydra
+*.log
