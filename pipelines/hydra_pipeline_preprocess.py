@@ -1,7 +1,14 @@
 from clearml import Task, TaskTypes
+from clearml.config import running_remotely
+from typing import Dict, Any
 from clearml.automation import PipelineController
 import hydra
 from omegaconf import OmegaConf
+
+def parse_stage_arguments(params: Dict[str, Any], stage: str, prefix: str = 'stages/'):
+    filtered_args = {k:v for k, v in params.items() if stage in k}
+    parsed_args = {k.replace(prefix+stage, ''):v for k,v in filtered_args.items()}
+    return parsed_args
 
 @hydra.main(config_path='configs', config_name='main')
 def main(hydra_cfg):
@@ -11,59 +18,49 @@ def main(hydra_cfg):
         task_name=hydra_cfg['controller']['name'],
         task_type=TaskTypes.controller
     )
+    if not running_remotely():
+        # only connect config on remote launch
+        task.connect(OmegaConf.to_container(hydra_cfg, resolve=True))
+        task.set_base_docker('dleongsh/audio_preproc:v1.0.0')
+        task.execute_remotely()
 
-    task.connect(OmegaConf.to_container(hydra_cfg, resolve=True))
-    cfg = {k.replace('General/', ''):v for k, v in task.get_parameters().items()}
+    cfg = {k.replace('General/', ''):v for k, v in task.get_parameters(cast=True).items()}
     if cfg['test']: 
-        'Stupiak! It doesn\'t work!'
+        print('Stupiak! It doesn\'t work!')
         return
 
+    else:
+        print('Omg!? it works!?')
+
     pipe = PipelineController(
-        project=cfg['controller']['project'],
-        name=cfg['controller']['name'],
-        version=cfg['controller']['version'],
+        project=cfg['General/controller/project'],
+        name=cfg['General/controller/name'],
+        version=cfg['General/controller/version'],
         add_pipeline_tags=True
     )
     pipe.set_default_execution_queue(cfg['default_queue'])
 
-    step1_cfg = cfg['stages']['stage_standardizing']
     pipe.add_step(
         name="stage_standardizing",
         base_task_project="default_tasks/audio_preproc_test",
         base_task_name="audio_standardizing",
-        parameter_override={
-            "General/dataset_task_id": step1_cfg['raw_dataset_id'],
-            "General/input_filetype": step1_cfg['input_filetype'],
-            "General/normalize": step1_cfg['normalize'],
-            "General/channels": step1_cfg['channels'],
-            "General/sample_rate": step1_cfg['sample_rate'],
-        }
+        parameter_override=parse_stage_arguments(cfg, 'stage_standardizing')
     )
 
-    step2_cfg = cfg['stages']['stage_silence_splitting']
     pipe.add_step(
         name="stage_silence_splitting",
         parents=["stage_standardizing"],
         base_task_project="default_tasks/audio_preproc_test",
         base_task_name="audio_silence_split",
-        parameter_override={
-            "General/dataset_task_id": "${stage_standardizing.parameters.General/output_dataset_id}",
-            "General/min_silence_len": step2_cfg['min_silence_len'],
-            "General/thresh": step2_cfg['thresh'],
-        }
+        parameter_override=parse_stage_arguments(cfg, 'stage_silence_splitting')
     )
 
-    step3_cfg = cfg['stages']['stage_audio_splitting']
     pipe.add_step(
         name="stage_audio_splitting",
         parents=["stage_silence_splitting"],
         base_task_project="default_tasks/audio_preproc_test",
         base_task_name="audio_splitting",
-        parameter_override={
-            "General/dataset_task_id": "${stage_silence_splitting.parameters.General/output_dataset_id}",
-            "General/max_duration": step3_cfg['max_duration'],
-            "General/min_duration": step3_cfg['min_duration'],
-        }
+        parameter_override=parse_stage_arguments(cfg, 'stage_audio_splitting')
     )
 
     pipe.start()

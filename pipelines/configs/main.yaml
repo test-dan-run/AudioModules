@@ -8,8 +8,8 @@ controller:
 
 stages:
   stage_standardizing:
-    raw_dataset_id: '10b07eed06e642d3ab3589d399aa9833'
-    input_filetype: '.wav'
+    dataset_task_id: null
+    input_filetype: null
     normalize: true
     channels: 1
     sample_rate: 16000
