@@ -1,15 +1,15 @@
 default_queue: 'compute'
+test: True
 
 controller:
-  name: 'audio_preprocessing_pipeline'
+  name: 'hydra_audio_preprocessing_pipeline'
   project: 'audio_preproc_test'
   version: '0.0.1'
-  add_pipeline_tags: true
 
 stages:
   stage_standardizing:
     raw_dataset_id: '10b07eed06e642d3ab3589d399aa9833'
-    input_filetype: '.flac'
+    input_filetype: '.wav'
     normalize: true
     channels: 1
     sample_rate: 16000
