@@ -2,7 +2,6 @@
 A repository of tasks and pipelines to preprocess audio files for ML pipelines. The repository is centered around the ClearML MLOps Framework.
 
 ## Getting Started
----
 ### Via local environment (linux)
 1. Ensure that you have the following apt packages installed
 ```shell
@@ -22,7 +21,6 @@ docker build -t audiomodules:latest .
 ```
 
 ## Project Organization
----
 
     ├── README.md          <- The top-level README for developers using this project.
     ├── tasks
@@ -46,7 +44,6 @@ docker build -t audiomodules:latest .
 
 
 ## Available Modules
----
 ### Standardize
 Standardizes all of the files in the input directory by normalization, sampling rate, and number of channels.
 
@@ -55,7 +52,6 @@ Standardizes all of the files in the input directory by normalization, sampling 
 - `normalize`: (bool) whether to normalize the audio by each file's maximum volume
 - `sample_rate`: (int) the value to upsample/downsample to
 - `channels`: (int) the number of channels to convert to
-
 
 ### Silence Split
 Splits audio, with silence as the separator. 
@@ -72,7 +68,7 @@ Splits audio if a given audio file is too long.
 - `min_duration`: (int) ensures the split audio file is not shorter than this min duration
 
 ## How to Use
----
+
 ### Run Individual Tasks
 Configure the parameters at the top of each script, then run the python scripts. 
 
