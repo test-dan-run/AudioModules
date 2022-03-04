@@ -18,7 +18,7 @@ args = {
 task.connect(args)
 task.execute_remotely()
 
-from preprocessing.silence_split import SilenceSplitter
+from preprocessing import SilenceSplitter
 
 # import dataset
 
