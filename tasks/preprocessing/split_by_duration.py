@@ -1,13 +1,11 @@
 # Standardizing audio files -> normalize, resampling, changing channels
-
 import os
 import json
 from pathlib import Path
 import audiosegment
 from pydub.utils import make_chunks
 
-
-class AudioSplitter():
+class DurationSplitter():
 
     def __init__(self, min_duration: int, max_duration: int):
         '''
@@ -74,5 +72,5 @@ class AudioSplitter():
 
 if __name__ == '__main__':
 
-    a = AudioSplitter(3000, 30000)
+    a = DurationSplitter(3000, 30000)
     a('/AudioModules/test_audio/', '/tmp')

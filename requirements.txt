@@ -3,6 +3,7 @@ librosa==0.8.1
 audiosegment==0.23.0
 pydub==0.25.1
 numpy==1.21.0
-clearml
+scikit-learn==1.0.2
+clearml==1.2.1
 #notebook dev
 
