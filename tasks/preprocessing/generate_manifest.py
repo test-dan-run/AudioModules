@@ -18,7 +18,8 @@ class SimpleManifestGenerator():
                     filepath = os.path.join(root, filename)
                     relative_filepath = os.path.relpath(filepath, data_dir)
 
-                    duration = round(librosa.get_duration(filename=filepath), 2)
+                    # duration = round(librosa.get_duration(filename=filepath), 2)
+                    duration = 0.0
 
                     item = {
                         'audio_filepath': relative_filepath,
