@@ -32,9 +32,9 @@ task.upload_artifact(name='manifest.json', artifact_object=output_manifest_path)
 
 # register ClearML Dataset
 clearml_dataset = Dataset.create(
-    dataset_project=dataset.project, dataset_name=dataset.name + DATASET_POSTFIX, parent_dataset=[args['dataset_task_id'],]
+    dataset_project=dataset.project, dataset_name=dataset.name + DATASET_POSTFIX, parent_datasets=[args['dataset_task_id'],]
 )
-clearml_dataset.add_files(new_dataset_path)
+clearml_dataset.add_files(output_manifest_path)
 clearml_dataset.upload(output_url=OUTPUT_URL)
 clearml_dataset.finalize()
 
