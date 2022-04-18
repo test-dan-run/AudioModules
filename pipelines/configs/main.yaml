@@ -24,6 +24,11 @@ stages:
     max_duration: 30000
     min_duration: 500
 
+  stage_dataset_splitting:
+    split_names: ['train', 'dev', 'test']
+    split_ratio: [0.8, 0.1, 0.1]
+    random_seed: 42
+
 hydra:
   run:
     dir: '.'

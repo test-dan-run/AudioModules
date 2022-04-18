@@ -122,6 +122,25 @@ def main(hydra_cfg):
         parameter_override=step3_args
     )
 
+    #### STEP 4 ####
+    step4_args = parse_stage_arguments(
+        params=cfg,
+        stage='stage_dataset_splitting',
+        add_args={'General/dataset_task_id': '${stage_audio_splitting.parameters.General/output_dataset_id}'}
+    )
+    step4_task_id = Task.get_task(
+        project_name='audio_preproc_test',
+        task_name='dataset_splitting',
+        task_filter={'status': ['published',]}
+    )
+
+    pipe.add_step(
+        name="stage_dataset_splitting",
+        base_task_id=step4_task_id,
+        parents=["stage_audio_splitting"],
+        parameter_override=step4_args
+    )
+
     pipe.start(queue='General/default_pipeline_queue')
     print('Done')
 

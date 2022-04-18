@@ -13,6 +13,10 @@ THRESH = 16
 MAX_DURATION = 30000
 MIN_DURATION = 5000
 
+SPLIT_NAMES = ("train", "dev", "test")
+SPLIT_RATIO = (0.8, 0.1, 0.1)
+RANDOM_SEED = 42
+
 pipe = PipelineController(
     name="audio_preprocessing_pipeline",
     project="audio_preproc_test",
@@ -56,6 +60,19 @@ pipe.add_step(
         "General/dataset_task_id": "${stage_silence_splitting.parameters.General/output_dataset_id}",
         "General/max_duration": MAX_DURATION,
         "General/min_duration": MIN_DURATION,
+    }
+)
+
+pipe.add_step(
+    name="stage_dataset_splitting",
+    parents=["stage_audio_splitting"],
+    base_task_project="audio_preproc_test",
+    base_task_name="dataset_splitting",
+    parameter_override={
+        "General/dataset_task_id": "${stage_audio_splitting.parameters.General/output_dataset_id}",
+        "General/split_names": SPLIT_NAMES,
+        "General/split_ratio": SPLIT_RATIO,
+        "General/random_seed": RANDOM_SEED,
     }
 )
 
