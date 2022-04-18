@@ -69,7 +69,9 @@ class SilenceSplitter():
 
         print('total no. of files processed:', idx+1)
         print('total no. of files produced:', total_num_chunks)
-        return output_dir
+        
+        # returns dataset dir and new manifest file path
+        return output_dir, os.path.join(output_dir, manifest_path)
 
     def __call__(self, input_dir: str, output_dir: str = 'temp', manifest_path: str = 'manifest.json'):
         return self.batch_silence_split(input_dir, output_dir, manifest_path)

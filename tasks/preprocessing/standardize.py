@@ -2,7 +2,6 @@
 
 import os
 import json
-import shutil
 import subprocess
 
 class Standardizer():
@@ -32,9 +31,13 @@ class Standardizer():
         subprocess.run(sox_command)
 
     def batch_standardize_audio(self, input_dir: str, output_dir: str, manifest_path: str) -> str:
+
         os.makedirs(output_dir, exist_ok=True)
-        with open(os.path.join(input_dir, manifest_path), mode='r', encoding='utf-8') as fr, \
-            open(os.path.join(output_dir, manifest_path), mode='w', encoding='utf-8') as fw:
+        input_manifest_path = os.path.join(input_dir, manifest_path)
+        output_manifest_path = os.path.join(output_dir, manifest_path)
+
+        with open(input_manifest_path, mode='r', encoding='utf-8') as fr, \
+            open(output_manifest_path, mode='w', encoding='utf-8') as fw:
 
             for idx, line in enumerate(fr.readlines()):
                 if idx % 100 == 0 and idx != 0:
@@ -52,14 +55,14 @@ class Standardizer():
                 fw.write(json.dumps(d) + '\n')
 
         print('total no. of files processed:', idx+1)
-        return output_dir
+        return output_dir, output_manifest_path
 
     def __call__(self, input_dir: str, output_dir: str = 'temp', manifest_path: str = 'manifest.json'):
         return self.batch_standardize_audio(input_dir, output_dir, manifest_path)
 
 if __name__ == '__main__':
 
-    LOCAL_DIR = '/home/daniel/projects/AudioModules/test_audio'
-    OUTPUT_DIR = '/home/daniel/projects/AudioModules/test_output'
+    LOCAL_DIR = '/home/daniel/Desktop/edith/output'
+    OUTPUT_DIR = '/home/daniel/Desktop/edith/standardized'
     s = Standardizer(input_filetype='.wav', normalize=True, sample_rate=16000, channels=1)
     s(LOCAL_DIR, OUTPUT_DIR)

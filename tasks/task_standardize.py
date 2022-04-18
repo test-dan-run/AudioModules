@@ -35,7 +35,10 @@ standardizer = Standardizer(
     sample_rate = args['sample_rate'],
     channels = args['channels']    
 )
-new_dataset_path = standardizer(dataset_path, manifest_path=args['manifest_path'])
+new_dataset_path, output_manifest_path = standardizer(dataset_path, manifest_path=args['manifest_path'])
+
+# upload manifest file as artifact
+task.upload_artifact(name='manifest.json', artifact_object=output_manifest_path)
 
 # register ClearML Dataset
 clearml_dataset = Dataset.create(
@@ -46,8 +49,8 @@ clearml_dataset.upload(output_url=OUTPUT_URL)
 clearml_dataset.finalize()
 
 task.set_parameter(
-    name="output_dataset_id", 
+    name='output_dataset_id', 
     value=clearml_dataset.id, 
-    description="the dataset task id of the output dataset"
+    description='the dataset task id of the output dataset'
     ) 
 print('Done')

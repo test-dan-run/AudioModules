@@ -7,14 +7,14 @@ from pydub.utils import make_chunks
 
 class DurationSplitter():
 
-    def __init__(self, min_duration: int, max_duration: int):
+    def __init__(self, min_duration: int, max_duration: int) -> None:
         '''
         in milliseconds
         '''
         self.max_duration = max_duration
         self.min_duration = min_duration
 
-    def __call__(self, original_path: str, processed_path: str) -> None:
+    def __call__(self, original_path: str, processed_path: str) -> str:
         with open(os.path.join(original_path, 'manifest.json')) as f:
             manifest = f.readlines()
 
@@ -66,9 +66,13 @@ class DurationSplitter():
                     item['audio_filepath'] = os.path.join(
                         str(old_file_path.parent), chunk_name)
                     new_manifest.append(item)
-        with open(os.path.join(str(processed_path), 'manifest.json'), 'w') as f:
+
+        output_path = os.path.join(str(processed_path), 'manifest.json')
+        with open(output_path, 'w') as f:
             for item in new_manifest:
-                f.write(json.dumps(item) + '\n')    
+                f.write(json.dumps(item) + '\n')
+
+        return output_path
 
 if __name__ == '__main__':
 
