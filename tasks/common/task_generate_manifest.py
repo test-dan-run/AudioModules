@@ -16,7 +16,7 @@ args = {
 task.connect(args)
 task.execute_remotely()
 
-from preprocessing.generate_manifest import SimpleManifestGenerator
+from preprocessing import SimpleManifestGenerator
 
 # import dataset
 

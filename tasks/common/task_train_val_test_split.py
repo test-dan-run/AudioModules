@@ -20,7 +20,7 @@ task.connect(args)
 task.execute_remotely()
 
 import os
-from preprocessing.train_val_test_split import DatasetSplitter
+from preprocessing import DatasetSplitter
 
 # import parent dataset's manifest file
 parent_dataset = Dataset.get(dataset_id = args['dataset_task_id'])
