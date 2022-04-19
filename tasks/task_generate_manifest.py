@@ -27,15 +27,19 @@ dataset_path = dataset.get_local_copy()
 generator = SimpleManifestGenerator()
 output_manifest_path = generator.generate_manifest(dataset_path)
 
-# upload manifest file as artifact
-task.upload_artifact(name='manifest.json', artifact_object=output_manifest_path)
-
 # register ClearML Dataset
 clearml_dataset = Dataset.create(
-    dataset_project=dataset.project, dataset_name=dataset.name + DATASET_POSTFIX, parent_datasets=[args['dataset_task_id'],]
+    dataset_project=dataset.project, 
+    dataset_name=dataset.name + DATASET_POSTFIX, 
+    parent_datasets=[args['dataset_task_id'],], 
 )
 clearml_dataset.add_files(output_manifest_path)
 clearml_dataset.upload(output_url=OUTPUT_URL)
+
+# upload manifest as artifact
+clearml_dataset_task = Task.get_task(task_id=clearml_dataset.id)
+clearml_dataset_task.upload_artifact(name='manifest.json', artifact_object=output_manifest_path)
+
 clearml_dataset.finalize()
 
 task.set_parameter(

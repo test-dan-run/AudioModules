@@ -47,15 +47,18 @@ new_dataset_path, output_manifest_path = silence_splitter(
     manifest_path = args['manifest_path'],
 )
 
-# upload manifest file as artifact
-task.upload_artifact(name='manifest.json', artifact_object=output_manifest_path)
-
 # register ClearML Dataset
 clearml_dataset = Dataset.create(
-    dataset_project=dataset.project, dataset_name=dataset.name + DATASET_POSTFIX
+    dataset_project=dataset.project, 
+    dataset_name=dataset.name + DATASET_POSTFIX
 )
 clearml_dataset.add_files(new_dataset_path)
 clearml_dataset.upload(output_url=OUTPUT_URL)
+
+# upload manifest as artifact
+clearml_dataset_task = Task.get_task(task_id=clearml_dataset.id)
+clearml_dataset_task.upload_artifact(name='manifest.json', artifact_object=output_manifest_path)
+
 clearml_dataset.finalize()
 
 task.set_parameter(

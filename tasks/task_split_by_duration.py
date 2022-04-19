@@ -39,13 +39,17 @@ temp_path = '/output_data'
 audio_splitter = DurationSplitter(args['min_duration'], args['max_duration'])
 output_manifest_path = audio_splitter(dataset_path, temp_path)
 
-# upload manifest as artifact
-task.upload_artifact(name='manifest.json', artifact_object=output_manifest_path)
-
 clearml_dataset = Dataset.create(
-    dataset_project=dataset.project, dataset_name=dataset.name + DATASET_POSTFIX)
+    dataset_project=dataset.project, 
+    dataset_name=dataset.name + DATASET_POSTFIX,
+)
 clearml_dataset.add_files(temp_path)
 clearml_dataset.upload(output_url=OUTPUT_URL)
+
+# upload manifest as artifact
+clearml_dataset_task = Task.get_task(task_id=clearml_dataset.id)
+clearml_dataset_task.upload_artifact(name='manifest.json', artifact_object=output_manifest_path)
+
 clearml_dataset.finalize()
 
 task.set_parameter(

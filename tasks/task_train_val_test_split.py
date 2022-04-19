@@ -43,11 +43,13 @@ clearml_dataset = Dataset.create(
     parent_datasets=[args['dataset_task_id'],],
 )
 
+clearml_dataset_task = Task.get_task(task_id=clearml_dataset.id)
+
 for path in output_manifest_paths:
-    # upload manifest files as artifacts
-    task.upload_artifact(name=os.path.basename(path), artifact_object=path)
     # upload each individual manifest file
     clearml_dataset.add_files(path)
+    # upload manifest file as artifact
+    clearml_dataset_task.upload_artifact(name=os.path.basename(path), artifact_object=path)
 
 clearml_dataset.upload(output_url=OUTPUT_URL)
 clearml_dataset.finalize()
