@@ -44,7 +44,7 @@ class DatasetSplitter():
         
         file_paths = []
         for name, data_split in zip(self.split_names, data_splits):
-            file_path = os.path.join(name + '_manifest.json')
+            file_path = name + '_manifest.json'
             with open(file_path, mode='w', encoding='utf-8') as f:
                 for item in data_split:
                     f.write(json.dumps(item) + '\n')
