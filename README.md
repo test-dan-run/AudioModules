@@ -24,13 +24,23 @@ docker build -t audiomodules:latest .
 
     ├── README.md          <- The top-level README for developers using this project.
     ├── tasks
-    |   ├── preprocessing  <- individual scripts to preprocess data
-    |   │   ├── silence_split.py
-    |   │   ├── split.py
-    |   │   └── standardize.py
-    │   ├── task_silence_split.py   <- ClearML-wrapped preproc scripts
-    │   ├── task_split.py
-    │   └── task_standardize.py
+    |   ├── audio <- audio modules
+    |   │   ├── preprocessing           <- individual scripts to preprocess data
+    |   |   │   ├── silence_split.py
+    |   |   │   ├── split.py
+    |   |   │   └── standardize.py
+    |   |   ├── task_silence_split.py   <- ClearML-wrapped preproc scripts
+    |   |   ├── task_split.py
+    |   |   └── task_standardize.py
+    |   |    
+    |   ├── common
+    |       ├── preprocessing           <- individual scripts to preprocess data
+    |       │   ├── generate_manifest.py
+    |       │   └── train_val_test_split.py
+    |       ├── task_generate_manifest.py   <- ClearML-wrapped preproc scripts
+    |       ├── task_train_val_test_split.py
+    |       ├── task_upload_dataset.py
+    |       └── task_upload_model.py
     |
     ├── pipelines
     |   ├── configs        <- Hydra config folder
