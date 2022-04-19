@@ -10,8 +10,8 @@ controller:
 
 stages:
   stage_standardizing:
-    dataset_task_id: null
-    input_filetype: '.flac'
+    dataset_task_id: 'a4bd41d335ab4502855cdeb288e0136d'
+    input_filetype: '.mp3'
     normalize: true
     channels: 1
     sample_rate: 16000
@@ -21,8 +21,8 @@ stages:
     thresh: 16
 
   stage_audio_splitting:
-    max_duration: 30000
-    min_duration: 500
+    max_duration: 4000
+    min_duration: 2000
 
   stage_dataset_splitting:
     split_names: ['train', 'dev', 'test']

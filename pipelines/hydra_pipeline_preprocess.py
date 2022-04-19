@@ -130,7 +130,7 @@ def main(hydra_cfg):
     )
     step4_task_id = Task.get_task(
         project_name='audio_preproc_test',
-        task_name='dataset_splitting',
+        task_name='dataset_split',
         task_filter={'status': ['published',]}
     )
 

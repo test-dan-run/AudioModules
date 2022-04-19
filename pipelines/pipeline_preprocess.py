@@ -67,7 +67,7 @@ pipe.add_step(
     name="stage_dataset_splitting",
     parents=["stage_audio_splitting"],
     base_task_project="audio_preproc_test",
-    base_task_name="dataset_splitting",
+    base_task_name="dataset_split",
     parameter_override={
         "General/dataset_task_id": "${stage_audio_splitting.parameters.General/output_dataset_id}",
         "General/split_names": SPLIT_NAMES,
