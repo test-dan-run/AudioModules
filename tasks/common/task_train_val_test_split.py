@@ -23,8 +23,8 @@ import os
 from preprocessing import DatasetSplitter
 
 # import parent dataset's manifest file
-parent_dataset = Dataset.get(dataset_id = args['dataset_task_id'])
-input_manifest_path = parent_dataset.artifacts['manifest.json'].get_local_copy()
+parent_dataset_task = Task.get_task(task_id = args['dataset_task_id'])
+input_manifest_path = parent_dataset_task.artifacts['manifest.json'].get_local_copy()
 
 # initialize class object
 ds_splitter = DatasetSplitter(
@@ -38,8 +38,8 @@ output_manifest_paths = ds_splitter.split_manifest(input_manifest_path=input_man
 
 # register ClearML Dataset
 clearml_dataset = Dataset.create(
-    dataset_project=parent_dataset.project, 
-    dataset_name=parent_dataset.name + DATASET_POSTFIX, 
+    dataset_project=parent_dataset_task.get_project_name(), 
+    dataset_name=parent_dataset_task.name + DATASET_POSTFIX, 
     parent_datasets=[args['dataset_task_id'],],
 )
 
