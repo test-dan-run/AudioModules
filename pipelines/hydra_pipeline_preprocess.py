@@ -46,26 +46,23 @@ def parse_stage_arguments(
 def main(hydra_cfg):
 
     # START of using hydra configs
-    task = Task.init(
-        project_name=hydra_cfg['controller']['project'],
-        task_name=hydra_cfg['controller']['name'],
-        task_type=TaskTypes.controller
+    pipe = PipelineController(
+        project=hydra_cfg['controller']['project'],
+        name=hydra_cfg['controller']['name'],
+        version=hydra_cfg['controller']['version'],
+        add_pipeline_tags=True
     )
+    task = Task.current_task()
     task.connect(OmegaConf.to_container(hydra_cfg, resolve=True))
-    task.set_base_docker('dleongsh/audio_preproc:v1.0.0')
-    task.execute_remotely()
+    pipe.set_default_execution_queue(hydra_cfg['default_task_queue'])
+
+    # task.set_base_docker('dleongsh/audio_preproc:v1.0.0')
+    # task.execute_remotely()
     # END of using hydra configs
 
     # PULL ClearML Params
     cfg = get_clearml_params(task)
 
-    pipe = PipelineController(
-        project=cfg['General/controller/project'],
-        name=cfg['General/controller/name'],
-        version=cfg['General/controller/version'],
-        add_pipeline_tags=True
-    )
-    pipe.set_default_execution_queue(cfg['General/default_task_queue'])
 
     #### STEP 1 ####
     step1_args = parse_stage_arguments(
@@ -77,12 +74,6 @@ def main(hydra_cfg):
         task_name='audio_standardizing',
         task_filter={'status': ['published',]}
         ).id
-
-    pipe.add_step(
-        name="stage_standardizing",
-        base_task_id=step1_task_id,
-        parameter_override=step1_args
-    )
 
     #### STEP 2 ####
     step2_args = parse_stage_arguments(
@@ -96,13 +87,6 @@ def main(hydra_cfg):
         task_filter={'status': ['published',]}
         ).id
 
-    pipe.add_step(
-        name="stage_silence_splitting",
-        base_task_id=step2_task_id,
-        parents=["stage_standardizing"],
-        parameter_override=step2_args
-    )
-
     #### STEP 3 ####
     step3_args = parse_stage_arguments(
         params=cfg,
@@ -115,12 +99,6 @@ def main(hydra_cfg):
         task_filter={'status': ['published',]}
         ).id
         
-    pipe.add_step(
-        name="stage_audio_splitting",
-        base_task_id=step3_task_id,
-        parents=["stage_silence_splitting"],
-        parameter_override=step3_args
-    )
 
     #### STEP 4 ####
     step4_args = parse_stage_arguments(
@@ -132,16 +110,34 @@ def main(hydra_cfg):
         project_name='audio_preproc_test',
         task_name='dataset_split',
         task_filter={'status': ['published',]}
-    )
+        ).id
 
+    pipe.add_step(
+        name="stage_standardizing",
+        base_task_id=step1_task_id,
+        parameter_override=step1_args
+    )
+    pipe.add_step(
+        name="stage_silence_splitting",
+        base_task_id=step2_task_id,
+        parents=["stage_standardizing",],
+        parameter_override=step2_args
+    )
+    pipe.add_step(
+        name="stage_audio_splitting",
+        base_task_id=step3_task_id,
+        parents=["stage_silence_splitting",],
+        parameter_override=step3_args
+    )
     pipe.add_step(
         name="stage_dataset_splitting",
         base_task_id=step4_task_id,
-        parents=["stage_audio_splitting"],
+        parents=["stage_audio_splitting",],
         parameter_override=step4_args
     )
 
-    pipe.start(queue='General/default_pipeline_queue')
+
+    pipe.start(queue=cfg['General/default_pipeline_queue'])
     print('Done')
 
 if __name__ == '__main__':
