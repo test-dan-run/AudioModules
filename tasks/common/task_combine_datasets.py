@@ -36,6 +36,7 @@ dataset = Dataset.create(
     parent_datasets = args['parent_dataset_ids'],
     use_current_task = True
 )
+dataset_task = Task.get_task(task_id=dataset.id)
 
 # pull artifacts from each parent dataset
 artifact_paths = {}
@@ -65,7 +66,7 @@ for output_path in artifact_paths.keys():
                     fw.write(line)
 
     # upload updated manifest as artifact
-    task.upload_artifact(name = output_path, artifact_object = output_path)
+    dataset_task.upload_artifact(name = output_path, artifact_object = output_path)
     # upload updated manifest as file
     dataset.add_files(output_path)
 
