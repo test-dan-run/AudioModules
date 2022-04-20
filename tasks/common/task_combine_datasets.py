@@ -34,7 +34,6 @@ dataset = Dataset.create(
     dataset_project = args['dataset_project'],
     dataset_name = args['dataset_name'],
     parent_datasets = args['parent_dataset_ids'],
-    use_current_task = True
 )
 dataset_task = Task.get_task(task_id=dataset.id)
 
