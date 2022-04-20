@@ -47,9 +47,11 @@ for parent_id in args['parent_dataset_ids']:
         if artifact_name not in artifact_paths:
             artifact_paths[artifact_name] = []
         # pull artifact and store in a list
-        artifact_paths[artifact_name].append(
-            parent_dataset_task.artifacts[artifact_name].get_local_copy()
-        )
+        artifact_path = parent_dataset_task.artifacts[artifact_name].get_local_copy()
+        # if file does not exist
+        if artifact_path is None:
+            continue
+        artifact_paths[artifact_name].append(artifact_path)
 
 # combine and upload artifacts
 for output_path in artifact_paths.keys():
