@@ -59,4 +59,6 @@ task.set_parameter(
     value=clearml_dataset.id, 
     description='the dataset task id of the output dataset'
     ) 
+
+task.close()
 print('Done')

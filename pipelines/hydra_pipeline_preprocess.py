@@ -1,7 +1,7 @@
 import ast
 from typing import Dict, Any
 
-from clearml import Task, TaskTypes 
+from clearml import Task
 from clearml.automation import PipelineController
 
 import hydra
@@ -56,13 +56,13 @@ def main(hydra_cfg):
     task.connect(OmegaConf.to_container(hydra_cfg, resolve=True))
     pipe.set_default_execution_queue(hydra_cfg['default_task_queue'])
 
-    # task.set_base_docker('dleongsh/audio_preproc:v1.0.0')
-    # task.execute_remotely()
+    # to set default docker image, set environment variable
+    # export CLEARML_DOCKER_IMAGE=dleongsh/audio_preproc:v1.0.0
+
     # END of using hydra configs
 
     # PULL ClearML Params
     cfg = get_clearml_params(task)
-
 
     #### STEP 1 ####
     step1_args = parse_stage_arguments(
@@ -99,7 +99,6 @@ def main(hydra_cfg):
         task_filter={'status': ['published',]}
         ).id
         
-
     #### STEP 4 ####
     step4_args = parse_stage_arguments(
         params=cfg,
@@ -112,6 +111,7 @@ def main(hydra_cfg):
         task_filter={'status': ['published',]}
         ).id
 
+    # add all pipeline steps
     pipe.add_step(
         name="stage_standardizing",
         base_task_id=step1_task_id,

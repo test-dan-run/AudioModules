@@ -78,5 +78,11 @@ dataset.upload(
 # finalize the dataset
 dataset.finalize()
 
+task.set_parameter(
+    name='output_dataset_id', 
+    value=dataset.id, 
+    description='the dataset task id of the output dataset',
+) 
+
 # end the task
 task.close()
