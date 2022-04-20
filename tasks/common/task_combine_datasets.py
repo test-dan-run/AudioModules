@@ -1,10 +1,11 @@
 # This script assumes that you have already generated train, dev, test manifests as artifacts for each dataset
-import os
-from clearml import Task, Dataset
+from clearml import Task, Dataset, TaskTypes
 from typing import List
 
 #### PARAMS ####
 
+PROJECT_NAME = "audio_preproc_test"
+TASK_NAME = "combine_datasets"
 DATASET_PROJECT = 'datasets/sample_dataset'
 DATASET_NAME = 'test_audio_combined'
 ARTIFACT_NAMES = ['train_manifest.json', 'dev_manifest.json', 'test_manifest.json']
@@ -14,82 +15,66 @@ OUTPUT_URI = 's3://experiment-logging/storage'
 
 ################
 
-def combine_datasets(
-    dataset_project: str, 
-    dataset_name: str,
-    artifact_names: List[str] = [], 
-    parent_ids: List[str] = None,
-    output_uri: str = None
-    ) -> None:
-    '''
-    artifact_names: Names of artifacts to combine (assume they have the same name across datasets)
-    parent_ids: ids of datasets to combine with
-    '''
+task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME, task_type=TaskTypes.data_processing)
+task.set_base_docker(docker_image="dleongsh/audio_preproc:v1.0.0")
 
-    # initialize empty task
-    task = Task.init(
-        project_name = dataset_project, 
-        task_name = dataset_name, 
-        output_uri=output_uri,
-        task_type='data_processing'
+# librispeech_small dataset_task_id: 092896c34c0e45b598777222d9eaaee6
+args = {
+    'dataset_project': DATASET_PROJECT,
+    'dataset_name': DATASET_NAME,
+    'artifact_names': ARTIFACT_NAMES,
+    'parent_dataset_ids': [],
+}
+
+task.connect(args)
+task.execute_remotely()
+
+# intialize dataset task as current task
+dataset = Dataset.create(
+    dataset_project = args['dataset_project'],
+    dataset_name = args['dataset_name'],
+    parent_datasets = args['parent_dataset_ids'],
+    use_current_task = True
+)
+
+# pull artifacts from each parent dataset
+artifact_paths = {}
+
+for parent_id in args['parent_dataset_ids']:
+    parent_dataset_task = Task.get_task(task_id=parent_id)
+
+    for artifact_name in args['artifact_names']:
+        if artifact_name not in artifact_paths:
+            artifact_paths[artifact_name] = []
+        # pull artifact and store in a list
+        artifact_paths[artifact_name].append(
+            parent_dataset_task.artifacts[artifact_name].get_local_copy()
         )
 
-    # intialize dataset task as current task
-    dataset = Dataset.create(
-        dataset_project = dataset_project,
-        dataset_name = dataset_name,
-        parent_datasets = parent_ids,
-        use_current_task = True
-    )
+# combine and upload artifacts
+for output_path in artifact_paths.keys():
+    print(f'Combining {len(artifact_paths[output_path])} files into: {output_path}')
+    with open(output_path, mode='w', encoding='utf-8') as fw:
+        # enter each input artifact and append each line to the new output artifact
+        for input_path in artifact_paths[output_path]:
+            with open(input_path, mode='r', encoding='utf-8') as fr:
+                lines = fr.readlines()
+                for line in lines:
+                    fw.write(line)
 
-    # pull artifacts from each parent dataset
-    artifact_paths = {}
+    # upload updated manifest as artifact
+    task.upload_artifact(name = output_path, artifact_object = output_path)
+    # upload updated manifest as file
+    dataset.add_files(output_path)
 
-    for parent_id in parent_ids:
-        parent_dataset_task = Task.get_task(task_id=parent_id)
+# upload dataset to remote storage
+dataset.upload(
+    output_url=OUTPUT_URI, 
+    verbose=True
+)
 
-        for artifact_name in artifact_names:
-            if artifact_name not in artifact_paths:
-                artifact_paths[artifact_name] = []
-            # pull artifact and store in a list
-            artifact_paths[artifact_name].append(
-                parent_dataset_task.artifacts[artifact_name].get_local_copy()
-            )
+# finalize the dataset
+dataset.finalize()
 
-    # combine and upload artifacts
-    for output_path in artifact_paths.keys():
-        print(f'Combining {len(artifact_paths[output_path])} files into: {output_path}')
-        with open(output_path, mode='w', encoding='utf-8') as fw:
-            # enter each input artifact and append each line to the new output artifact
-            for input_path in artifact_paths[output_path]:
-                with open(input_path, mode='r', encoding='utf-8') as fr:
-                    lines = fr.readlines()
-                    for line in lines:
-                        fw.write(line)
-
-        # upload updated manifest as artifact
-        task.upload_artifact(name = output_path, artifact_object = output_path)
-        # upload updated manifest as file
-        dataset.add_files(output_path)
-
-    # upload dataset to remote storage
-    dataset.upload(
-        output_url=output_uri, 
-        verbose=True
-    )
-
-    # finalize the dataset
-    dataset.finalize()
-
-    # end the task
-    task.close()
-
-if __name__ == '__main__':
-
-    combine_datasets(
-        dataset_project = DATASET_PROJECT,
-        dataset_name = DATASET_NAME,
-        artifact_names = ARTIFACT_NAMES,
-        parent_ids = None,
-        output_uri = OUTPUT_URI
-    )
+# end the task
+task.close()
