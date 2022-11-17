@@ -30,6 +30,17 @@ class Standardizer():
         
         subprocess.run(sox_command)
 
+    def standardize_audio_mp3(self, input_path: str, output_path: str) -> None:
+        # use ffmpeg
+        ffmpeg_command = [
+            'ffmpeg', '-i', input_path,
+            '-ac', str(self.channels),
+            '-ar', str(self.sample_rate),
+            output_path
+        ]
+
+        subprocess.run(ffmpeg_command)
+
     def batch_standardize_audio(self, input_dir: str, output_dir: str, manifest_path: str) -> str:
 
         os.makedirs(output_dir, exist_ok=True)
@@ -49,8 +60,10 @@ class Standardizer():
                 full_input_path = os.path.join(input_dir, relative_input_path)
                 relative_output_path = relative_input_path.replace(self.input_filetype, '.wav')
                 full_output_path = os.path.join(output_dir, relative_output_path)
-
-                self.standardize_audio(full_input_path, full_output_path)
+                if self.input_filetype == '.mp3':
+                    self.standardize_audio_mp3(full_input_path, full_output_path)
+                else:
+                    self.standardize_audio(full_input_path, full_output_path)
                 d['audio_filepath'] = relative_output_path
                 fw.write(json.dumps(d) + '\n')
 

@@ -1,25 +1,27 @@
 from clearml import Task, Dataset, TaskTypes
+import shutil
+import os
 
-PROJECT_NAME = "audio_preproc_test"
-TASK_NAME = "audio_standardizing"
-DATASET_POSTFIX = "_sd"
-OUTPUT_URL = "s3://experiment-logging/storage"
+# PROJECT_NAME = "audio/speech_recognition"
+# TASK_NAME = "audio_standardizing"
+DATASET_POSTFIX = "-wav16k"
+OUTPUT_URL = None
 
-task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME, task_type=TaskTypes.data_processing)
-task.set_base_docker(docker_image="dleongsh/audio_preproc:v1.0.0")
+# task = Task.init(project_name=PROJECT_NAME, task_name=TASK_NAME, task_type=TaskTypes.data_processing)
+# task.set_base_docker(docker_image="dleongsh/audio_preproc:v1.0.0")
 
 # librispeech_small dataset_task_id: 092896c34c0e45b598777222d9eaaee6
 args = {
-    'dataset_task_id': '',
-    'manifest_path': 'manifest.json',
-    'input_filetype': '',
-    'normalize': None,
-    'sample_rate': None,
-    'channels': None,
+    'dataset_task_id': '9653fcef34de44889f06f6342711e6c1',
+    'manifest_path': 'test_manifest.json',
+    'input_filetype': '.mp3',
+    'normalize': True,
+    'sample_rate': 16000,
+    'channels': 1,
 }
 
-task.connect(args)
-task.execute_remotely()
+# task.connect(args)
+# task.execute_remotely()
 
 from preprocessing.standardize import Standardizer
 
@@ -39,22 +41,24 @@ new_dataset_path, output_manifest_path = standardizer(dataset_path, manifest_pat
 
 # register ClearML Dataset
 clearml_dataset = Dataset.create(
-    dataset_project=dataset.project, dataset_name=dataset.name + DATASET_POSTFIX
+    dataset_project=dataset.project, dataset_name=dataset.name + DATASET_POSTFIX, parent_datasets=[args['dataset_task_id']],
 )
-clearml_dataset.add_files(new_dataset_path)
+clearml_dataset.sync_folder(new_dataset_path)
 clearml_dataset.upload(output_url=OUTPUT_URL)
 
 # upload manifest as artifact
 clearml_dataset_task = Task.get_task(task_id=clearml_dataset.id)
-clearml_dataset_task.upload_artifact(name='manifest.json', artifact_object=output_manifest_path)
+clearml_dataset_task.upload_artifact(name=os.path.basename(output_manifest_path), artifact_object=output_manifest_path)
 
 clearml_dataset.finalize()
 
-task.set_parameter(
-    name='output_dataset_id', 
-    value=clearml_dataset.id, 
-    description='the dataset task id of the output dataset',
-) 
+# task.set_parameter(
+#     name='output_dataset_id', 
+#     value=clearml_dataset.id, 
+#     description='the dataset task id of the output dataset',
+# ) 
 
-task.close()
+# task.close()
+
+shutil.rmtree(new_dataset_path)
 print('Done')
